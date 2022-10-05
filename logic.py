@@ -15,17 +15,20 @@ class Gaming:
                 self.field_dict[digit][letter] = 'empty'
 
     def random_boats(self):
-        boats_quantity = 0
-        while boats_quantity < 5:
-            boat_coordinate = self.create_random_boat_coordinate(1)
-            print('Boat coordinate :', boat_coordinate)
-            near_dict_final = self.create_near_dict(boat_coordinate)
-            near_empty = self.check_boat_near(near_dict_final)
-            if near_empty:
-                for x, y in boat_coordinate.items():
-                    self.field_dict[x][y] = 'boat'
-                    print('Boat position save -', x, y)
-                boats_quantity += 1
+        boats_set = {1: 4, 2: 3, 3: 2, 4: 1}
+        for boat_deck in boats_set:
+            boats_quantity = 0
+            while boats_quantity < boats_set[boat_deck]:
+                boat_coordinate = self.create_random_boat_coordinate(boat_deck)
+                print('Boat coordinate :', boat_coordinate)
+                near_dict_final = self.create_near_dict(boat_coordinate)
+                near_empty = self.check_boat_near(near_dict_final)
+                if near_empty:
+                    for x, y_set in boat_coordinate.items():
+                        for y in y_set:
+                            self.field_dict[x][y] = 'boat'
+                        print('Boat position save -', x, y_set)
+                    boats_quantity += 1
 
     def random_x_y(self):
         x = int(random.choice(self.x_tuple))
@@ -42,8 +45,9 @@ class Gaming:
 
     def create_near_dict(self, boat_coordinate):
         near_dict_final = {}
-        for x, y in boat_coordinate.items():
-            near_dict = self.neighboring_coordinate(x, y)
+        for x, y_set in boat_coordinate.items():
+            for y in y_set:
+                near_dict = self.neighboring_coordinate(x, y)
             for key, value in near_dict.items():
                 if key in near_dict_final:
                     near_dict_final[key].update(value)
@@ -53,14 +57,25 @@ class Gaming:
 
     def create_random_boat_coordinate(self, quantity_deck):
         boat_ready = False
+
         while not boat_ready:
+            axis = random.choice(('x', 'y'))
             x, y = self.random_x_y()
             boat_coordinate = {}
-            if self.x_tuple.index(x) + quantity_deck <= 10:
-                for i in range(quantity_deck):
-                    boat_coordinate.update({x + i: y})
-                boat_ready = True
-                return boat_coordinate
+            if axis == 'x':
+                if self.x_tuple.index(x) + quantity_deck <= 10:
+                    for i in range(quantity_deck):
+                        boat_coordinate.update({x + i: y})
+                    boat_ready = True
+                    return boat_coordinate
+            else:
+                if self.y_tuple.index(y) + quantity_deck <= 10:
+                    boat_coordinate = {x: set()}
+                    pos = self.y_tuple.index(y)
+                    for i in range(quantity_deck):
+                        boat_coordinate[x].add(self.y_tuple[pos + i])
+                    boat_ready = True
+                    return boat_coordinate
 
     def neighboring_coordinate(self, x, y):
         near_dict = {}
