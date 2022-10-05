@@ -20,14 +20,12 @@ class Gaming:
             boats_quantity = 0
             while boats_quantity < boats_set[boat_deck]:
                 boat_coordinate = self.create_random_boat_coordinate(boat_deck)
-                print('Boat coordinate :', boat_coordinate)
                 near_dict_final = self.create_near_dict(boat_coordinate)
                 near_empty = self.check_boat_near(near_dict_final)
                 if near_empty:
                     for x, y_set in boat_coordinate.items():
                         for y in y_set:
                             self.field_dict[x][y] = 'boat'
-                        print('Boat position save -', x, y_set)
                     boats_quantity += 1
 
     def random_x_y(self):
@@ -48,11 +46,11 @@ class Gaming:
         for x, y_set in boat_coordinate.items():
             for y in y_set:
                 near_dict = self.neighboring_coordinate(x, y)
-            for key, value in near_dict.items():
-                if key in near_dict_final:
-                    near_dict_final[key].update(value)
-                else:
-                    near_dict_final[key] = value
+                for key, value in near_dict.items():
+                    if key in near_dict_final.keys():
+                        near_dict_final[key].update(value)
+                    else:
+                        near_dict_final[key] = value
         return near_dict_final
 
     def create_random_boat_coordinate(self, quantity_deck):
@@ -127,10 +125,12 @@ class Gaming:
             stop = input('Exit?')
             x, y = self.input_coordinate()
             self.gaming(x, y)
-            print(self.neighboring_coordinate(x, y))
+
+    def get_field_dict(self):
+        return self.field_dict
 
 
 a = Gaming()
 a.set_dict()
 a.random_boats()
-a.play()
+

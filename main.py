@@ -1,5 +1,5 @@
 import pygame
-import random
+from logic import Gaming
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -13,7 +13,7 @@ size = (left_margin + 30 * block_size, upper_margin + 15 * block_size)
 pygame.init()
 
 screen = pygame.display.set_mode(size)
-pygame.display.set_caption("Morskoy Boy")
+pygame.display.set_caption("Sea Battle")
 
 font_size = int(block_size / 1.5)
 
@@ -61,16 +61,37 @@ def draw_grid():
                                       upper_margin + 10 * block_size))
 
 
+def draw_field(field_dict):
+    y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
+    for x, y_set in field_dict.items():
+        for y in y_set:
+            o = font.render(str("O"), True, BLACK)
+            crestik = font.render(str("X"), True, BLACK)
+            width = o.get_width()
+            if field_dict[x][y] == 'boat':
+                screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
+                                      upper_margin + y_tuple.index(y) * block_size + width))
+            # else:
+            #     screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
+            #                           upper_margin + y_tuple.index(y) * block_size + width))
+
+
 def main():
     game_over = False
     screen.fill(WHITE)
     draw_grid()
+    a = Gaming()
+    a.set_dict()
+    a.random_boats()
+    field_dict = a.get_field_dict()
+    draw_field(field_dict)
     pygame.display.update()
 
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
+
 
 if __name__ == "__main__":
     main()
