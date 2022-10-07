@@ -106,6 +106,7 @@ class Gaming:
         elif self.field_dict[int(x)][str(y)] == 'burned/boat' or 'burned/empty':
             self.schedule = False
             print('You already fired')
+        return self.field_dict
 
     def input_coordinate(self):
         x = 0
