@@ -30,7 +30,6 @@ class Gaming:
                         for y in y_set:
                             self.field_dict[x][y] = 'boat'
                     boats_quantity += 1
-        print(self.boats_coordinate)
 
     def random_x_y(self):
         x = int(random.choice(self.x_tuple))
@@ -112,24 +111,24 @@ class Gaming:
             print('You already fired')
         return self.field_dict
 
-    def input_coordinate(self):
-        x = 0
-        while x not in self.x_tuple:
-            try:
-                x = int(input("Please enter your coordinate (1 - 10) :"))
-            except:
-                print('It must be digit')
-        y = 'z'
-        while not str(y) in self.y_tuple:
-            y = input("Please enter your coordinate (a - j) :")
-        return x, y
-
-    def play(self):
-        stop = None
-        while not stop:
-            stop = input('Exit?')
-            x, y = self.input_coordinate()
-            self.gaming(x, y)
+    # def input_coordinate(self):
+    #     x = 0
+    #     while x not in self.x_tuple:
+    #         try:
+    #             x = int(input("Please enter your coordinate (1 - 10) :"))
+    #         except:
+    #             print('It must be digit')
+    #     y = 'z'
+    #     while not str(y) in self.y_tuple:
+    #         y = input("Please enter your coordinate (a - j) :")
+    #     return x, y
+    #
+    # def play(self):
+    #     stop = None
+    #     while not stop:
+    #         stop = input('Exit?')
+    #         x, y = self.input_coordinate()
+    #         self.gaming(x, y)
 
     def get_field_dict(self):
         return self.field_dict

@@ -48,27 +48,25 @@ def draw_grid():
 
             # Ver num grid1
             screen.blit(letters_hor, (left_margin - (block_size // 2 + num_ver_width // 2),
-                                  upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
+                                      upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
             # Hor letters grid1
             screen.blit(num_ver, (left_margin + i * block_size + (block_size //
-                                                                      2 - letters_hor_width // 2),
-                                      upper_margin + 10 * block_size))
+                                                                  2 - letters_hor_width // 2),
+                                  upper_margin + 10 * block_size))
             # Ver num grid2
             screen.blit(letters_hor, (left_margin - (block_size // 2 + num_ver_width // 2) + 15 *
-                                  block_size, upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
+                                      block_size,
+                                      upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
             # Hor letters grid2
             screen.blit(num_ver, (left_margin + i * block_size + (block_size // 2 -
-                                                                      letters_hor_width // 2) + 15 * block_size,
-                                      upper_margin + 10 * block_size))
+                                                                  letters_hor_width // 2) + 15 * block_size,
+                                  upper_margin + 10 * block_size))
 
 
 def draw_boats_right(field_dict):
     for x, y_set in field_dict.items():
         for y in y_set:
             if field_dict[x][y] == 'boat':
-                # pygame.draw.rect(
-                #     screen, BLACK, ((block_size * (x - 1) + left_margin, block_size * y_tuple.index(y) + upper_margin),
-                #                     (block_size, block_size)), width=block_size // 10)
                 pygame.draw.rect(
                     screen, BLACK, ((block_size * (x + 14) + left_margin, block_size * y_tuple.index(y) + upper_margin),
                                     (block_size, block_size)), width=block_size // 10)
@@ -81,6 +79,7 @@ def draw_one_boat(boat_coordinate):
                 screen, BLACK, ((block_size * (x - 1) + left_margin, block_size * y_tuple.index(y) + upper_margin),
                                 (block_size, block_size)), width=block_size // 10)
     pygame.display.update()
+
 
 def draw_point(field_dict, x, y):
     o = font.render(str("O"), True, BLACK)
@@ -105,6 +104,17 @@ def draw_point_right(field_dict, x, y):
     elif field_dict[x][y] == 'burned/empty':
         screen.blit(o, (left_margin + (x + 14) * block_size + width,
                         upper_margin + y_tuple.index(y) * block_size + width))
+    pygame.display.update()
+
+
+def draw_points_around_boat(near_dict, field_dict):
+    o = font.render(str("O"), True, BLACK)
+    width = o.get_width()
+    for x, y_list_near in near_dict.items():
+        for y in y_list_near:
+            if field_dict[x][y] == 'empty':
+                screen.blit(o, (left_margin + (x - 1) * block_size + width,
+                                upper_margin + y_tuple.index(y) * block_size + width))
     pygame.display.update()
 
 
@@ -138,11 +148,10 @@ def main():
                         boat_coordinate = computer.find_full_boat(x, y)
                         if boat_coordinate:
                             draw_one_boat(boat_coordinate)
-                        # near_dict = computer.neighboring_coordinate(x, y)
-                        # print(computer.check_boat_near(near_dict))
+                            near_dict_final = computer.create_near_dict(boat_coordinate)
+                            draw_points_around_boat(near_dict_final, field_dict)
                     draw_point(field_dict, x, y)
-                    # print('fire - ', x, y)
-                    # pygame.time.delay(1200)
+                    pygame.time.delay(800)
                     x, y = human.random_x_y()
                     field_dict_human = human.gaming(x, y)
                     draw_point_right(field_dict_human, x, y)
