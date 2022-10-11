@@ -1,6 +1,7 @@
 import pygame
 from logic import Gaming
 
+y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
@@ -46,53 +47,68 @@ def draw_grid():
             letters_hor_width = letters_hor.get_width()
 
             # Ver num grid1
-            screen.blit(num_ver, (left_margin - (block_size // 2 + num_ver_width // 2),
+            screen.blit(letters_hor, (left_margin - (block_size // 2 + num_ver_width // 2),
                                   upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
             # Hor letters grid1
-            screen.blit(letters_hor, (left_margin + i * block_size + (block_size //
+            screen.blit(num_ver, (left_margin + i * block_size + (block_size //
                                                                       2 - letters_hor_width // 2),
                                       upper_margin + 10 * block_size))
             # Ver num grid2
-            screen.blit(num_ver, (left_margin - (block_size // 2 + num_ver_width // 2) + 15 *
+            screen.blit(letters_hor, (left_margin - (block_size // 2 + num_ver_width // 2) + 15 *
                                   block_size, upper_margin + i * block_size + (block_size // 2 - num_ver_height // 2)))
             # Hor letters grid2
-            screen.blit(letters_hor, (left_margin + i * block_size + (block_size // 2 -
+            screen.blit(num_ver, (left_margin + i * block_size + (block_size // 2 -
                                                                       letters_hor_width // 2) + 15 * block_size,
                                       upper_margin + 10 * block_size))
 
 
-def draw_field(field_dict):
-    y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
+def draw_boats_right(field_dict):
     for x, y_set in field_dict.items():
         for y in y_set:
-            # o = font.render(str("O"), True, BLACK)
-            # crestik = font.render(str("X"), True, BLACK)
-            # width = o.get_width()
             if field_dict[x][y] == 'boat':
-                # screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
-                #                       upper_margin + y_tuple.index(y) * block_size + width))
                 # pygame.draw.rect(
                 #     screen, BLACK, ((block_size * (x - 1) + left_margin, block_size * y_tuple.index(y) + upper_margin),
                 #                     (block_size, block_size)), width=block_size // 10)
                 pygame.draw.rect(
                     screen, BLACK, ((block_size * (x + 14) + left_margin, block_size * y_tuple.index(y) + upper_margin),
                                     (block_size, block_size)), width=block_size // 10)
-            # elif field_dict[x][y] == 'burned/empty':
-            #     screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
-            #                           upper_margin + y_tuple.index(y) * block_size + width))
-            # elif field_dict[x][y] == 'burned/boat':
-            #     screen.blit(o, (left_margin + (x - 1) * block_size + width,
-            #                           upper_margin + y_tuple.index(y) * block_size + width))
 
 
-# def draw_from_dotted_set(x, y):
-#     # for elem in dotted_set:
-#     pygame.draw.circle(screen, BLACK, (block_size * (
-#             x - 0.5) + left_margin, (block_size * y - 0.5) + upper_margin), block_size // 6)
+def draw_one_boat(boat_coordinate):
+    for x, y_set in boat_coordinate.items():
+        for y in y_set:
+            pygame.draw.rect(
+                screen, BLACK, ((block_size * (x - 1) + left_margin, block_size * y_tuple.index(y) + upper_margin),
+                                (block_size, block_size)), width=block_size // 10)
+    pygame.display.update()
+
+def draw_point(field_dict, x, y):
+    o = font.render(str("O"), True, BLACK)
+    crestik = font.render(str("X"), True, BLACK)
+    width = o.get_width()
+    if field_dict[x][y] == 'burned/boat':
+        screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
+                              upper_margin + y_tuple.index(y) * block_size + width))
+    elif field_dict[x][y] == 'burned/empty':
+        screen.blit(o, (left_margin + (x - 1) * block_size + width,
+                        upper_margin + y_tuple.index(y) * block_size + width))
+    pygame.display.update()
+
+
+def draw_point_right(field_dict, x, y):
+    o = font.render(str("O"), True, BLACK)
+    crestik = font.render(str("X"), True, BLACK)
+    width = o.get_width()
+    if field_dict[x][y] == 'burned/boat':
+        screen.blit(crestik, (left_margin + (x + 14) * block_size + width,
+                              upper_margin + y_tuple.index(y) * block_size + width))
+    elif field_dict[x][y] == 'burned/empty':
+        screen.blit(o, (left_margin + (x + 14) * block_size + width,
+                        upper_margin + y_tuple.index(y) * block_size + width))
+    pygame.display.update()
 
 
 def main():
-    y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
     game_over = False
     screen.fill(WHITE)
     draw_grid()
@@ -102,8 +118,8 @@ def main():
     human = Gaming()
     human.set_dict()
     human.random_boats()
-    field_dict = human.get_field_dict()
-    draw_field(field_dict)
+    field_dict_human = human.get_field_dict()
+    draw_boats_right(field_dict_human)
     pygame.display.update()
 
     while not game_over:
@@ -113,25 +129,23 @@ def main():
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if (left_margin <= x <= left_margin + 10*block_size) and (upper_margin <= y <= upper_margin + 10*block_size):
+                if (left_margin <= x <= left_margin + 10 * block_size) and (
+                        upper_margin <= y <= upper_margin + 10 * block_size):
                     x = (x - left_margin) // block_size + 1
                     y = y_tuple[(y - upper_margin) // block_size]
                     field_dict = computer.gaming(x, y)
-                    # draw_from_dotted_set(x, y_tuple.index(y))
-                    o = font.render(str("O"), True, BLACK)
-                    crestik = font.render(str("X"), True, BLACK)
-                    width = o.get_width()
                     if field_dict[x][y] == 'burned/boat':
-                        # pygame.draw.circle(screen, BLACK, ((x - 1) * block_size + width + left_margin,
-                        #                                    upper_margin + y_tuple.index(y) * block_size + width),
-                        #                    block_size // 6)
-                        screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
-                                              upper_margin + y_tuple.index(y) * block_size + width))
-                    elif field_dict[x][y] == 'burned/empty':
-                        screen.blit(o, (left_margin + (x - 1) * block_size + width,
-                                        upper_margin + y_tuple.index(y) * block_size + width))
-                    pygame.display.update()
-                    print('fire - ', x, y)
+                        boat_coordinate = computer.find_full_boat(x, y)
+                        if boat_coordinate:
+                            draw_one_boat(boat_coordinate)
+                        # near_dict = computer.neighboring_coordinate(x, y)
+                        # print(computer.check_boat_near(near_dict))
+                    draw_point(field_dict, x, y)
+                    # print('fire - ', x, y)
+                    # pygame.time.delay(1200)
+                    x, y = human.random_x_y()
+                    field_dict_human = human.gaming(x, y)
+                    draw_point_right(field_dict_human, x, y)
 
 
 if __name__ == "__main__":

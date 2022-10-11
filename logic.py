@@ -7,6 +7,7 @@ class Gaming:
         self.y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
         self.field_dict = {}
         self.schedule = False
+        self.boats_coordinate = []
 
     def set_dict(self):
         for digit in self.x_tuple:
@@ -20,13 +21,16 @@ class Gaming:
             boats_quantity = 0
             while boats_quantity < boats_set[boat_deck]:
                 boat_coordinate = self.create_random_boat_coordinate(boat_deck)
+
                 near_dict_final = self.create_near_dict(boat_coordinate)
                 near_empty = self.check_boat_near(near_dict_final)
                 if near_empty:
+                    self.boats_coordinate.append(boat_coordinate)
                     for x, y_set in boat_coordinate.items():
                         for y in y_set:
                             self.field_dict[x][y] = 'boat'
                     boats_quantity += 1
+        print(self.boats_coordinate)
 
     def random_x_y(self):
         x = int(random.choice(self.x_tuple))
@@ -130,8 +134,24 @@ class Gaming:
     def get_field_dict(self):
         return self.field_dict
 
+    def find_full_boat(self, x, y):
+        for boat_coordinate in self.boats_coordinate:
+            for x_boat, y_list in boat_coordinate.items():
+                for y_boat in y_list:
+                    if x == x_boat and y == y_boat:
+                        full_not_full = self.check_boat_burned(boat_coordinate)
+                        if full_not_full:
+                            return boat_coordinate
 
-a = Gaming()
-a.set_dict()
-a.random_boats()
+    def check_boat_burned(self, boat_coordinate, full_not_full=True):
+        for x_boat, y_list in boat_coordinate.items():
+            for y_boat in y_list:
+                if self.field_dict[x_boat][y_boat] == 'boat':
+                    full_not_full = False
+                    return full_not_full
+        return full_not_full
 
+#
+# a = Gaming()
+# a.set_dict()
+# a.random_boats()
