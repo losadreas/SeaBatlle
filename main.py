@@ -118,6 +118,27 @@ def draw_points_around_boat(near_dict, field_dict):
     pygame.display.update()
 
 
+def human_shoot(x, y, computer, shoot_success=False):
+    field_dict, result = computer.gaming(x, y)
+    if result == 'burned/boat':
+        shoot_success = True
+        boat_coordinate = computer.find_full_boat(x, y)
+        if boat_coordinate:
+            draw_one_boat(boat_coordinate)
+            near_dict_final = computer.create_near_dict(boat_coordinate)
+            draw_points_around_boat(near_dict_final, field_dict)
+    draw_point(field_dict, x, y)
+    return shoot_success
+
+
+def computer_shoot(human):
+    x, y = human.random_x_y()
+    field_dict_human, result = human.gaming(x, y)
+    draw_point_right(field_dict_human, x, y)
+    if result == 'burned/boat' or result == 'You already fired':
+        return True
+
+
 def main():
     game_over = False
     screen.fill(WHITE)
@@ -143,18 +164,13 @@ def main():
                         upper_margin <= y <= upper_margin + 10 * block_size):
                     x = (x - left_margin) // block_size + 1
                     y = y_tuple[(y - upper_margin) // block_size]
-                    field_dict = computer.gaming(x, y)
-                    if field_dict[x][y] == 'burned/boat':
-                        boat_coordinate = computer.find_full_boat(x, y)
-                        if boat_coordinate:
-                            draw_one_boat(boat_coordinate)
-                            near_dict_final = computer.create_near_dict(boat_coordinate)
-                            draw_points_around_boat(near_dict_final, field_dict)
-                    draw_point(field_dict, x, y)
+                    shoot_success = human_shoot(x, y, computer)
+                    if shoot_success:
+                        continue
                     pygame.time.delay(800)
-                    x, y = human.random_x_y()
-                    field_dict_human = human.gaming(x, y)
-                    draw_point_right(field_dict_human, x, y)
+                    shoot_success = True
+                    while shoot_success:
+                        shoot_success = computer_shoot(human)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ class Gaming:
         self.x_tuple = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         self.y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
         self.field_dict = {}
-        self.schedule = False
+        #self.schedule = False
         self.boats_coordinate = []
 
     def set_dict(self):
@@ -100,16 +100,16 @@ class Gaming:
     def gaming(self, x, y):
         if self.field_dict[int(x)][str(y)] == 'empty':
             self.field_dict[int(x)][str(y)] = 'burned/empty'
-            print(self.field_dict[int(x)][str(y)])
-            self.schedule = True
+            result = self.field_dict[int(x)][str(y)]
+            #self.schedule = True
         elif self.field_dict[int(x)][str(y)] == 'boat':
             self.field_dict[int(x)][str(y)] = 'burned/boat'
-            print(self.field_dict[int(x)][str(y)])
-            self.schedule = True
+            result = self.field_dict[int(x)][str(y)]
+            #self.schedule = True
         elif self.field_dict[int(x)][str(y)] == 'burned/boat' or 'burned/empty':
-            self.schedule = False
-            print('You already fired')
-        return self.field_dict
+            #self.schedule = False
+            result = 'You already fired'
+        return self.field_dict, result
 
     # def input_coordinate(self):
     #     x = 0
