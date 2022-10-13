@@ -97,8 +97,8 @@ class Gaming:
             near_dict.update({x: y_list_near})
         return near_dict
 
-    def gaming(self, x, y):
-        if self.field_dict[int(x)][str(y)] == 'empty':
+    def shoot(self, x, y):
+        if self.field_dict[int(x)][str(y)] == 'empty' or self.field_dict[int(x)][str(y)] == 'impossible':
             self.field_dict[int(x)][str(y)] = 'burned/empty'
             result = self.field_dict[int(x)][str(y)]
         elif self.field_dict[int(x)][str(y)] == 'boat':
@@ -152,6 +152,14 @@ class Gaming:
     def clear_list_coordinates_burn(self):
         self.list_coordinate_burn = []
         return None
+
+    def impossible_points_around(self, boat_coordinate):
+        near_dict_final = self.create_near_dict(boat_coordinate)
+        for x_near, y_list_near in near_dict_final.items():
+            for y_near in y_list_near:
+                if self.field_dict[x_near][y_near] == 'empty':
+                    self.field_dict[x_near][y_near] = 'impossible'
+
 
 #
 # a = Gaming()

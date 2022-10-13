@@ -120,7 +120,7 @@ def draw_points_around_boat(near_dict, field_dict):
 
 
 def human_shoot(x, y, computer, shoot_success=False):
-    field_dict, result = computer.gaming(x, y)
+    field_dict, result = computer.shoot(x, y)
     if result == 'burned/boat':
         shoot_success = True
         boat_coordinate = computer.find_full_boat(x, y)
@@ -137,16 +137,24 @@ def computer_shoot(human):
     if not list_coordinates_to_burn:
         x, y = human.random_x_y()
         result_check = human.checker_point(x, y)
-        while result_check == 'You already fired' or result_check == 'burned/boat' or result_check == 'burned/empty':
+        while result_check == 'You already fired' or result_check == 'burned/boat' or\
+                result_check == 'burned/empty' or result_check == 'impossible':
             x, y = human.random_x_y()
             result_check = human.checker_point(x, y)
     else:
         coor_dict = random.choice(list(list_coordinates_to_burn))
         list_coordinates_to_burn.remove(coor_dict)
-        for x_burn, y_burn in coor_dict.items():
-            x = x_burn
-            y = y_burn
-    field_dict_human, result = human.gaming(x, y)
+        x = list(coor_dict.keys())[0]
+        y = coor_dict[list(coor_dict.keys())[0]]
+        result_check = human.checker_point(x, y)
+        while result_check == 'You already fired' or result_check == 'burned/boat' or\
+                result_check == 'burned/empty' or result_check == 'impossible':
+            coor_dict = random.choice(list(list_coordinates_to_burn))
+            list_coordinates_to_burn.remove(coor_dict)
+            x = list(coor_dict.keys())[0]
+            y = coor_dict[list(coor_dict.keys())[0]]
+            result_check = human.checker_point(x, y)
+    field_dict_human, result = human.shoot(x, y)
     draw_point_right(field_dict_human, x, y)
     if result == 'burned/boat':
         boat_coordinate = human.find_full_boat(x, y)
@@ -154,6 +162,7 @@ def computer_shoot(human):
             list_coordinates_to_burn = human.create_list_coordinates_burn(x, y)
         else:
             list_coordinates_to_burn = human.clear_list_coordinates_burn()
+            human.impossible_points_around(boat_coordinate)
         return True
     # if result == 'You already fired':
     #     return True
