@@ -6,8 +6,8 @@ class Gaming:
         self.x_tuple = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         self.y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
         self.field_dict = {}
-        #self.schedule = False
         self.boats_coordinate = []
+        self.list_coordinate_burn = []
 
     def set_dict(self):
         for digit in self.x_tuple:
@@ -101,37 +101,21 @@ class Gaming:
         if self.field_dict[int(x)][str(y)] == 'empty':
             self.field_dict[int(x)][str(y)] = 'burned/empty'
             result = self.field_dict[int(x)][str(y)]
-            #self.schedule = True
         elif self.field_dict[int(x)][str(y)] == 'boat':
             self.field_dict[int(x)][str(y)] = 'burned/boat'
             result = self.field_dict[int(x)][str(y)]
-            #self.schedule = True
         elif self.field_dict[int(x)][str(y)] == 'burned/boat' or 'burned/empty':
-            #self.schedule = False
             result = 'You already fired'
         return self.field_dict, result
 
-    # def input_coordinate(self):
-    #     x = 0
-    #     while x not in self.x_tuple:
-    #         try:
-    #             x = int(input("Please enter your coordinate (1 - 10) :"))
-    #         except:
-    #             print('It must be digit')
-    #     y = 'z'
-    #     while not str(y) in self.y_tuple:
-    #         y = input("Please enter your coordinate (a - j) :")
-    #     return x, y
-    #
-    # def play(self):
-    #     stop = None
-    #     while not stop:
-    #         stop = input('Exit?')
-    #         x, y = self.input_coordinate()
-    #         self.gaming(x, y)
+    def checker_point(self, x, y):
+        return self.field_dict[int(x)][str(y)]
 
     def get_field_dict(self):
         return self.field_dict
+
+    def get_list_coordinate_burn(self):
+        return self.list_coordinate_burn
 
     def find_full_boat(self, x, y):
         for boat_coordinate in self.boats_coordinate:
@@ -149,6 +133,25 @@ class Gaming:
                     full_not_full = False
                     return full_not_full
         return full_not_full
+
+    def create_list_coordinates_burn(self, x, y):
+        pos = self.y_tuple.index(y)
+        if x > 1:
+            self.list_coordinate_burn.append({x - 1: y})
+        if x < 10:
+            self.list_coordinate_burn.append({x + 1: y})
+        if 0 < pos < 9:
+            self.list_coordinate_burn.append({x: self.y_tuple[pos - 1]})
+            self.list_coordinate_burn.append({x: self.y_tuple[pos + 1]})
+        elif pos == 0:
+            self.list_coordinate_burn.append({x: self.y_tuple[pos + 1]})
+        elif pos == 9:
+            self.list_coordinate_burn.append({x: self.y_tuple[pos - 1]})
+        return self.list_coordinate_burn
+
+    def clear_list_coordinates_burn(self):
+        self.list_coordinate_burn = []
+        return None
 
 #
 # a = Gaming()

@@ -1,5 +1,6 @@
 import pygame
 from logic import Gaming
+import random
 
 y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
 WHITE = (255, 255, 255)
@@ -12,7 +13,7 @@ upper_margin = 30
 size = (left_margin + 30 * block_size, upper_margin + 15 * block_size)
 
 pygame.init()
-
+sound = pygame.mixer.Sound('sound.wav')
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Sea Battle")
 
@@ -132,11 +133,30 @@ def human_shoot(x, y, computer, shoot_success=False):
 
 
 def computer_shoot(human):
-    x, y = human.random_x_y()
+    list_coordinates_to_burn = human.get_list_coordinate_burn()
+    if not list_coordinates_to_burn:
+        x, y = human.random_x_y()
+        result_check = human.checker_point(x, y)
+        while result_check == 'You already fired' or result_check == 'burned/boat' or result_check == 'burned/empty':
+            x, y = human.random_x_y()
+            result_check = human.checker_point(x, y)
+    else:
+        coor_dict = random.choice(list(list_coordinates_to_burn))
+        list_coordinates_to_burn.remove(coor_dict)
+        for x_burn, y_burn in coor_dict.items():
+            x = x_burn
+            y = y_burn
     field_dict_human, result = human.gaming(x, y)
     draw_point_right(field_dict_human, x, y)
-    if result == 'burned/boat' or result == 'You already fired':
+    if result == 'burned/boat':
+        boat_coordinate = human.find_full_boat(x, y)
+        if not boat_coordinate:
+            list_coordinates_to_burn = human.create_list_coordinates_burn(x, y)
+        else:
+            list_coordinates_to_burn = human.clear_list_coordinates_burn()
         return True
+    # if result == 'You already fired':
+    #     return True
 
 
 def main():
@@ -165,12 +185,14 @@ def main():
                     x = (x - left_margin) // block_size + 1
                     y = y_tuple[(y - upper_margin) // block_size]
                     shoot_success = human_shoot(x, y, computer)
+                    pygame.mixer.Sound.play(sound)
                     if shoot_success:
                         continue
-                    pygame.time.delay(800)
                     shoot_success = True
                     while shoot_success:
+                        pygame.time.delay(1250)
                         shoot_success = computer_shoot(human)
+                        pygame.mixer.Sound.play(sound)
 
 
 if __name__ == "__main__":
