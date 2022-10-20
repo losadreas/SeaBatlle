@@ -145,6 +145,17 @@ def random_from_all(human):
         return x, y
 
 
+def replace_if_need_finished_burn(human, field_dict_human, x, y):
+    boat_coordinate_whole = human.find_full_boat(x, y)
+    quantity_burned = 0
+    for x_boat, y_list in boat_coordinate_whole.items():
+        for y_boat in y_list:
+            if field_dict_human[x_boat][y_boat] == 'burned/boat':
+                quantity_burned += 1
+    if quantity_burned > 1:
+        human.replace_list_coordinates_burn(boat_coordinate_whole)
+
+
 def computer_shoot(human):
     list_coordinates_to_burn = human.get_list_coordinate_burn()
     if not list_coordinates_to_burn:
@@ -156,21 +167,12 @@ def computer_shoot(human):
     if result == 'burned/boat':
         boat_coordinate = human.find_full_boat_trigger(x, y)
         if not boat_coordinate:
-            list_coordinates_to_burn = human.create_list_coordinates_burn(x, y)
-            boat_coordinate_whole = human.find_full_boat(x, y)
-            quantity_burned = 0
-            for x_boat, y_list in boat_coordinate_whole.items():
-                for y_boat in y_list:
-                    if field_dict_human[x_boat][y_boat] == 'burned/boat':
-                        quantity_burned += 1
-            if quantity_burned > 1:
-                list_coordinates_to_burn = human.replace_list_coordinates_burn(boat_coordinate_whole)
+            human.create_list_coordinates_burn(x, y)
+            replace_if_need_finished_burn(human, field_dict_human, x, y)
         else:
-            list_coordinates_to_burn = human.clear_list_coordinates_burn()
+            human.clear_list_coordinates_burn()
             human.impossible_points_around(boat_coordinate)
         return True
-    # if result == 'You already fired':
-    #     return True
 
 
 def main():
