@@ -117,14 +117,11 @@ class Gaming:
     def get_list_coordinate_burn(self):
         return self.list_coordinate_burn
 
-    def find_full_boat(self, x, y):
-        for boat_coordinate in self.boats_coordinate:
-            for x_boat, y_list in boat_coordinate.items():
-                for y_boat in y_list:
-                    if x == x_boat and y == y_boat:
-                        full_not_full = self.check_boat_burned(boat_coordinate)
-                        if full_not_full:
-                            return boat_coordinate
+    def find_full_boat_trigger(self, x, y):
+        boat_coordinate = self.find_full_boat(x, y)
+        full_not_full = self.check_boat_burned(boat_coordinate)
+        if full_not_full:
+            return boat_coordinate
 
     def check_boat_burned(self, boat_coordinate, full_not_full=True):
         for x_boat, y_list in boat_coordinate.items():
@@ -133,6 +130,13 @@ class Gaming:
                     full_not_full = False
                     return full_not_full
         return full_not_full
+
+    def find_full_boat(self, x, y):
+        for boat_coordinate in self.boats_coordinate:
+            for x_boat, y_list in boat_coordinate.items():
+                for y_boat in y_list:
+                    if x == x_boat and y == y_boat:
+                        return boat_coordinate
 
     def create_list_coordinates_burn(self, x, y):
         pos = self.y_tuple.index(y)
@@ -153,12 +157,29 @@ class Gaming:
         self.list_coordinate_burn = []
         return None
 
+    def replace_list_coordinates_burn(self, boat_coordinate):
+        self.clear_list_coordinates_burn()
+        for x_boat, y_list_near in boat_coordinate.items():
+            for y_boat in y_list_near:
+                if self.field_dict[x_boat][y_boat] == 'boat':
+                    self.list_coordinate_burn.append({x_boat: y_boat})
+        return self.list_coordinate_burn
+
     def impossible_points_around(self, boat_coordinate):
         near_dict_final = self.create_near_dict(boat_coordinate)
         for x_near, y_list_near in near_dict_final.items():
             for y_near in y_list_near:
                 if self.field_dict[x_near][y_near] == 'empty':
                     self.field_dict[x_near][y_near] = 'impossible'
+
+    def check_all_burned(self):
+        for boat_coordinate in self.boats_coordinate:
+            for x, y_list in boat_coordinate.items():
+                for y in y_list:
+                    if self.field_dict[x][y] == 'boat':
+                        return False
+        return True
+
 
 
 #

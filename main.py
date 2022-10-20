@@ -82,28 +82,19 @@ def draw_one_boat(boat_coordinate):
     pygame.display.update()
 
 
-def draw_point(field_dict, x, y):
+def draw_point(field_dict, x, y, right_pole=False):
+    if right_pole:
+        x_pole = x + 14
+    else:
+        x_pole = x - 1
     o = font.render(str("O"), True, BLACK)
     crestik = font.render(str("X"), True, BLACK)
     width = o.get_width()
     if field_dict[x][y] == 'burned/boat':
-        screen.blit(crestik, (left_margin + (x - 1) * block_size + width,
+        screen.blit(crestik, (left_margin + x_pole * block_size + width,
                               upper_margin + y_tuple.index(y) * block_size + width))
     elif field_dict[x][y] == 'burned/empty':
-        screen.blit(o, (left_margin + (x - 1) * block_size + width,
-                        upper_margin + y_tuple.index(y) * block_size + width))
-    pygame.display.update()
-
-
-def draw_point_right(field_dict, x, y):
-    o = font.render(str("O"), True, BLACK)
-    crestik = font.render(str("X"), True, BLACK)
-    width = o.get_width()
-    if field_dict[x][y] == 'burned/boat':
-        screen.blit(crestik, (left_margin + (x + 14) * block_size + width,
-                              upper_margin + y_tuple.index(y) * block_size + width))
-    elif field_dict[x][y] == 'burned/empty':
-        screen.blit(o, (left_margin + (x + 14) * block_size + width,
+        screen.blit(o, (left_margin + x_pole * block_size + width,
                         upper_margin + y_tuple.index(y) * block_size + width))
     pygame.display.update()
 
@@ -123,7 +114,7 @@ def human_shoot(x, y, computer, shoot_success=False):
     field_dict, result = computer.shoot(x, y)
     if result == 'burned/boat':
         shoot_success = True
-        boat_coordinate = computer.find_full_boat(x, y)
+        boat_coordinate = computer.find_full_boat_trigger(x, y)
         if boat_coordinate:
             draw_one_boat(boat_coordinate)
             near_dict_final = computer.create_near_dict(boat_coordinate)
@@ -132,34 +123,48 @@ def human_shoot(x, y, computer, shoot_success=False):
     return shoot_success
 
 
+def random_from_list_to_burn(list_coordinates_to_burn, human):
+    coor_dict = random.choice(list(list_coordinates_to_burn))
+    list_coordinates_to_burn.remove(coor_dict)
+    x = list(coor_dict.keys())[0]
+    y = coor_dict[list(coor_dict.keys())[0]]
+    result_check = human.checker_point(x, y)
+    if result_check == 'You already fired' or result_check == 'burned/boat' or \
+            result_check == 'burned/empty' or result_check == 'impossible':
+        return random_from_list_to_burn(list_coordinates_to_burn, human)
+    return x, y
+
+
+def random_from_all(human):
+    x, y = human.random_x_y()
+    result_check = human.checker_point(x, y)
+    if result_check == 'You already fired' or result_check == 'burned/boat' or \
+            result_check == 'burned/empty' or result_check == 'impossible':
+        return random_from_all(human)
+    else:
+        return x, y
+
+
 def computer_shoot(human):
     list_coordinates_to_burn = human.get_list_coordinate_burn()
     if not list_coordinates_to_burn:
-        x, y = human.random_x_y()
-        result_check = human.checker_point(x, y)
-        while result_check == 'You already fired' or result_check == 'burned/boat' or\
-                result_check == 'burned/empty' or result_check == 'impossible':
-            x, y = human.random_x_y()
-            result_check = human.checker_point(x, y)
-    else:
-        coor_dict = random.choice(list(list_coordinates_to_burn))
-        list_coordinates_to_burn.remove(coor_dict)
-        x = list(coor_dict.keys())[0]
-        y = coor_dict[list(coor_dict.keys())[0]]
-        result_check = human.checker_point(x, y)
-        while result_check == 'You already fired' or result_check == 'burned/boat' or\
-                result_check == 'burned/empty' or result_check == 'impossible':
-            coor_dict = random.choice(list(list_coordinates_to_burn))
-            list_coordinates_to_burn.remove(coor_dict)
-            x = list(coor_dict.keys())[0]
-            y = coor_dict[list(coor_dict.keys())[0]]
-            result_check = human.checker_point(x, y)
+        x, y = random_from_all(human)
+    else:  # randon point
+        x, y = random_from_list_to_burn(list_coordinates_to_burn, human)
     field_dict_human, result = human.shoot(x, y)
-    draw_point_right(field_dict_human, x, y)
+    draw_point(field_dict_human, x, y, True)
     if result == 'burned/boat':
-        boat_coordinate = human.find_full_boat(x, y)
+        boat_coordinate = human.find_full_boat_trigger(x, y)
         if not boat_coordinate:
             list_coordinates_to_burn = human.create_list_coordinates_burn(x, y)
+            boat_coordinate_whole = human.find_full_boat(x, y)
+            quantity_burned = 0
+            for x_boat, y_list in boat_coordinate_whole.items():
+                for y_boat in y_list:
+                    if field_dict_human[x_boat][y_boat] == 'burned/boat':
+                        quantity_burned += 1
+            if quantity_burned > 1:
+                list_coordinates_to_burn = human.replace_list_coordinates_burn(boat_coordinate_whole)
         else:
             list_coordinates_to_burn = human.clear_list_coordinates_burn()
             human.impossible_points_around(boat_coordinate)
@@ -202,6 +207,12 @@ def main():
                         pygame.time.delay(1250)
                         shoot_success = computer_shoot(human)
                         pygame.mixer.Sound.play(sound)
+            elif computer.check_all_burned():
+                pygame.time.delay(2500)
+                game_over = True
+            elif human.check_all_burned():
+                pygame.time.delay(2500)
+                game_over = True
 
 
 if __name__ == "__main__":
