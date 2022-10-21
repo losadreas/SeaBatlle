@@ -180,9 +180,32 @@ class Gaming:
                         return False
         return True
 
+    def replace_if_need_finished_burn(self, x, y):
+        boat_coordinate_whole = self.find_full_boat(x, y)
+        quantity_burned = 0
+        for x_boat, y_list in boat_coordinate_whole.items():
+            for y_boat in y_list:
+                if self.field_dict[x_boat][y_boat] == 'burned/boat':
+                    quantity_burned += 1
+        if quantity_burned > 1:
+            self.replace_list_coordinates_burn(boat_coordinate_whole)
 
+    def random_from_list_to_burn(self):
+        list_coordinates = random.choice(list(self.list_coordinate_burn))
+        self.list_coordinate_burn.remove(list_coordinates)
+        x = list(list_coordinates.keys())[0]
+        y = list_coordinates[list(list_coordinates.keys())[0]]
+        result_check = self.checker_point(x, y)
+        if result_check == 'You already fired' or result_check == 'burned/boat' or \
+                result_check == 'burned/empty' or result_check == 'impossible':
+            return self.random_from_list_to_burn()
+        return x, y
 
-#
-# a = Gaming()
-# a.set_dict()
-# a.random_boats()
+    def random_from_all(self):
+        x, y = self.random_x_y()
+        result_check = self.checker_point(x, y)
+        if result_check == 'You already fired' or result_check == 'burned/boat' or \
+                result_check == 'burned/empty' or result_check == 'impossible':
+            return self.random_from_all()
+        else:
+            return x, y

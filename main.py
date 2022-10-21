@@ -1,6 +1,5 @@
 import pygame
 from logic import Gaming
-import random
 
 y_tuple = ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j')
 WHITE = (255, 255, 255)
@@ -14,6 +13,7 @@ size = (left_margin + 30 * block_size, upper_margin + 15 * block_size)
 
 pygame.init()
 sound = pygame.mixer.Sound('sound.wav')
+winsound = pygame.mixer.Sound('winsound.wav')
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Sea Battle")
 
@@ -123,52 +123,19 @@ def human_shoot(x, y, computer, shoot_success=False):
     return shoot_success
 
 
-def random_from_list_to_burn(list_coordinates_to_burn, human):
-    coor_dict = random.choice(list(list_coordinates_to_burn))
-    list_coordinates_to_burn.remove(coor_dict)
-    x = list(coor_dict.keys())[0]
-    y = coor_dict[list(coor_dict.keys())[0]]
-    result_check = human.checker_point(x, y)
-    if result_check == 'You already fired' or result_check == 'burned/boat' or \
-            result_check == 'burned/empty' or result_check == 'impossible':
-        return random_from_list_to_burn(list_coordinates_to_burn, human)
-    return x, y
-
-
-def random_from_all(human):
-    x, y = human.random_x_y()
-    result_check = human.checker_point(x, y)
-    if result_check == 'You already fired' or result_check == 'burned/boat' or \
-            result_check == 'burned/empty' or result_check == 'impossible':
-        return random_from_all(human)
-    else:
-        return x, y
-
-
-def replace_if_need_finished_burn(human, field_dict_human, x, y):
-    boat_coordinate_whole = human.find_full_boat(x, y)
-    quantity_burned = 0
-    for x_boat, y_list in boat_coordinate_whole.items():
-        for y_boat in y_list:
-            if field_dict_human[x_boat][y_boat] == 'burned/boat':
-                quantity_burned += 1
-    if quantity_burned > 1:
-        human.replace_list_coordinates_burn(boat_coordinate_whole)
-
-
 def computer_shoot(human):
     list_coordinates_to_burn = human.get_list_coordinate_burn()
     if not list_coordinates_to_burn:
-        x, y = random_from_all(human)
+        x, y = human.random_from_all()
     else:  # randon point
-        x, y = random_from_list_to_burn(list_coordinates_to_burn, human)
+        x, y = human.random_from_list_to_burn()
     field_dict_human, result = human.shoot(x, y)
     draw_point(field_dict_human, x, y, True)
     if result == 'burned/boat':
         boat_coordinate = human.find_full_boat_trigger(x, y)
         if not boat_coordinate:
             human.create_list_coordinates_burn(x, y)
-            replace_if_need_finished_burn(human, field_dict_human, x, y)
+            human.replace_if_need_finished_burn(x, y)
         else:
             human.clear_list_coordinates_burn()
             human.impossible_points_around(boat_coordinate)
@@ -210,9 +177,11 @@ def main():
                         shoot_success = computer_shoot(human)
                         pygame.mixer.Sound.play(sound)
             elif computer.check_all_burned():
+                pygame.mixer.Sound.play(winsound)
                 pygame.time.delay(2500)
                 game_over = True
             elif human.check_all_burned():
+                pygame.mixer.Sound.play(winsound)
                 pygame.time.delay(2500)
                 game_over = True
 
