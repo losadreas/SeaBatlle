@@ -99,13 +99,17 @@ def draw_point(field_dict, x, y, right_pole=False):
     pygame.display.update()
 
 
-def draw_points_around_boat(near_dict, field_dict):
+def draw_points_around_boat(near_dict, field_dict, right_pole=False):
     o = font.render(str("O"), True, BLACK)
     width = o.get_width()
     for x, y_list_near in near_dict.items():
         for y in y_list_near:
             if field_dict[x][y] == 'empty':
-                screen.blit(o, (left_margin + (x - 1) * block_size + width,
+                if right_pole:
+                    x_pole = x + 14
+                else:
+                    x_pole = x - 1
+                screen.blit(o, (left_margin + x_pole * block_size + width,
                                 upper_margin + y_tuple.index(y) * block_size + width))
     pygame.display.update()
 
@@ -137,6 +141,8 @@ def computer_shoot(human):
             human.create_list_coordinates_burn(x, y)
             human.replace_if_need_finished_burn(x, y)
         else:
+            near_dict_final = human.create_near_dict(boat_coordinate)
+            draw_points_around_boat(near_dict_final, field_dict_human, True)
             human.clear_list_coordinates_burn()
             human.impossible_points_around(boat_coordinate)
         return True
